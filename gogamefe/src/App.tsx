@@ -1,57 +1,63 @@
-// App.tsx
-import { useEffect, useRef } from 'react'
+import { useState } from 'react'
 import './App.css'
 import axios from 'axios'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
+const BOARD_SIZE = 19
+type Stone = 'black' | 'white' | null
 
 function App() {
-  const boardRef = useRef<HTMLDivElement>(null)
-  const boardInstance = useRef<any>(null)
+  const [board, setBoard] = useState<Stone[][]>(
+    Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null))
+  )
+  const [currentColor, setCurrentColor] = useState<Stone>('black')
 
-  useEffect(() => {
-    // @ts-ignore: WGo is from global
-    if (window.WGo && boardRef.current && !boardInstance.current) {
-      boardInstance.current = new window.WGo.Board(boardRef.current, {
-        width: 400,
-        section: {
-          top: -1,
-          left: -1,
-          right: -1,
-          bottom: -1,
-        },
-      })
+  const handleClick = (x: number, y: number) => {
+    if (board[y][x] !== null) return
 
-      boardRef.current.addEventListener('click', (e: MouseEvent) => {
-        const boundingRect = boardRef.current!.getBoundingClientRect()
-        const x = e.clientX - boundingRect.left
-        const y = e.clientY - boundingRect.top
+    const newBoard = board.map(row => [...row])
+    newBoard[y][x] = currentColor
+    setBoard(newBoard)
 
-        const coords = boardInstance.current.getCoordinates(x, y)
-        const [i, j] = coords
+    axios.post('http://localhost:8080/api/move', {
+      x,
+      y,
+      color: currentColor,
+    })
 
-        boardInstance.current.addObject({
-          type: 'stone',
-          c: i,
-          l: j,
-          color: boardInstance.current.stone_color || 1,
-        })
-
-        // Toggle color (1 = black, -1 = white)
-        boardInstance.current.stone_color =
-          boardInstance.current.stone_color === 1 ? -1 : 1
-
-        axios.post('http://localhost:8080/api/move', {
-          x: i,
-          y: j,
-          color: boardInstance.current.stone_color === 1 ? 'white' : 'black',
-        })
-      })
-    }
-  }, [])
+    setCurrentColor(currentColor === 'black' ? 'white' : 'black')
+  }
 
   return (
-    <div>
-      <h1>圍棋對局</h1>
-      <div ref={boardRef} id="board" style={{ margin: 'auto' }}></div>
+    <div className="container text-center py-4">
+      <h1 className="mb-4">圍棋棋盤</h1>
+      <div className="board mx-auto">
+        {board.map((row, y) =>
+          row.map((cell, x) => (
+            <div key={`${x}-${y}`} onClick={() => handleClick(x, y)} className="cell">
+              {cell && <div className={`stone ${cell}`}></div>}
+              {/* 星位點 */}
+              {[
+                [3, 3], [3, 9], [3, 15],
+                [9, 3], [9, 9], [9, 15],
+                [15, 3], [15, 9], [15, 15]
+              ].some(([sx, sy]) => sx === x && sy === y) && (
+                  <div className="star-point"></div>
+                )}
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="mt-4">
+        <p>目前輪到：<strong className={currentColor ?? ''}>
+          {currentColor === 'black' ? '黑子' : currentColor === 'white' ? '白子' : ''}
+        </strong>
+        </p>
+        <button className="btn btn-outline-secondary mt-2" onClick={() => window.location.reload()}>
+          重新開始
+        </button>
+      </div>
     </div>
   )
 }
