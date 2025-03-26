@@ -7,6 +7,8 @@ const BOARD_SIZE = 19
 type Stone = 'black' | 'white' | null
 
 function App() {
+  const [gameId, setGameId] = useState<number | null>(null)
+
   // ---------------------- 計時相關 ----------------------
   const [blackTime, setBlackTime] = useState(0) // 累計黑方思考時間
   const [whiteTime, setWhiteTime] = useState(0) // 累計白方思考時間
@@ -27,22 +29,32 @@ function App() {
   const [selectedRule, setSelectedRule] = useState('chinese')
 
   // ---------------------- 計時 useEffect ----------------------
+  // 只初始化時呼叫 /api/newgame
+  useEffect(() => {
+    axios.get('http://localhost:8080/api/newgame').then((res) => {
+      setGameId(res.data.game_id)
+    })
+  }, []) // ← 空陣列：只執行一次！
+
+  // 計時器控制
   useEffect(() => {
     if (timerActive) {
       timerRef.current = window.setInterval(() => {
         if (currentColor === 'black') {
           setBlackTime((prev) => prev + 1)
-        } else if (currentColor === 'white') {
+        } else {
           setWhiteTime((prev) => prev + 1)
         }
       }, 1000)
     }
+
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current)
       }
     }
   }, [timerActive, currentColor])
+
 
   // ---------------------- 工具函式：時間格式化 ----------------------
   function formatTime(seconds: number) {
@@ -118,7 +130,12 @@ function App() {
     setBoard(newBoard)
 
     // 和後端溝通的範例 (可自行斟酌)
-    axios.post('http://localhost:8080/api/move', { x, y, color: currentColor })
+    axios.post('http://localhost:8080/api/move', {
+      game_id: gameId,
+      x,
+      y,
+      color: currentColor
+    })
 
     // 切換顏色
     setCurrentColor(opponent)
