@@ -1,3 +1,4 @@
+/* 容器整體設定 */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -5,89 +6,246 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.container {
+  max-width: 950px; /* 可依需求調整 */
+  margin: 0 auto;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* 頁面標題 */
+h1 {
+  margin-bottom: 1rem;
+  font-size: 2.5rem; /* 增大標題 */
+  font-weight: bold;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* 棋盤區域：左右計時器 + 棋盤置中 */
+.board-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-.card {
-  padding: 2em;
+/* 計時面板（左右側） */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
-.read-the-docs {
-  color: #888;
+/* 棋盤中心（含座標） */
+.board-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* X 軸標籤容器 */
+.x-labels {
+  display: flex;
+  margin-bottom: 4px;
+  margin-left: 70px; /* 新增：整體向右位移，對準垂直線 */
+}
+
+/* 單一 X 標籤寬度與對齊 */
+.x-label {
+  width: 44px; /* 與棋盤每格的寬度一致 */
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+  position: relative;
+  right: 22px; /* 新增：個別標籤右移，精確對準交叉點 */
+}
+
+/* 棋盤與 Y 標籤水平排列 */
+.board-with-y-labels {
+  display: flex;
+  align-items: center;
+}
+
+/* Y 軸標籤容器 */
+.y-labels {
+  display: flex;
+  flex-direction: column;
+  margin-right: 8px; /* 與棋盤之間的間距 */
+}
+
+/* 單一 Y 標籤高度與對齊 */
+.y-label {
+  height: 44px; /* 與棋盤每格的高度一致 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 棋盤本體 */
 .board {
   display: grid;
-  grid-template-columns: repeat(19, 40px);
-  grid-template-rows: repeat(19, 40px);
+  grid-template-columns: repeat(19, 44px);
+  grid-template-rows: repeat(19, 44px);
+  background-color: #DEB887; /* 木色背景 */
+  position: relative;
+  border: 3px solid #000;
   width: fit-content;
-  background-color: #deb887;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  border: 4px solid #654321;
-  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* 棋格設定 */
 .cell {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #333;
-  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
   position: relative;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer; /* 滑鼠指標形狀 */
 }
 
+/* 棋盤格線 */
+.cell::before, .cell::after {
+  content: '';
+  position: absolute;
+  background-color: #000;
+}
+
+/* 水平線（格線） */
+.cell::before {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 垂直線（格線） */
+.cell::after {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 棋子樣式 */
 .stone {
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
+  z-index: 10;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-  transition: all 0.2s ease;
 }
 
+/* 黑棋 */
 .stone.black {
-  background-color: black;
+  background-color: #000;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
 
+/* 白棋 */
 .stone.white {
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
 
+/* 星位點 */
 .star-point {
-  width: 6px;
-  height: 6px;
-  background-color: black;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
+  background-color: #000;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+/* 計時面板樣式 */
+.player-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  border-radius: 8px;
+  min-width: 180px; /* 增寬容器 */
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.active-timer {
+  background-color: #e7f3ff;
+  box-shadow: 0 0 8px rgba(0,123,255,0.6);
+  border: 1px solid #0d6efd;
+}
+
+.timer-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 22px; /* 增大標籤字體 */
+}
+
+.timer-display {
+  font-family: monospace;
+  font-size: 38px; /* 增大計時器字體 */
+  font-weight: bold;
+}
+
+/* 計時控制按鈕 */
+.timer-control-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* 黑白子顯示文字 */
+strong.black {
+  color: #000;
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+strong.white {
+  color: #444;
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 提子顯示增強 */
+.capture-display {
+  font-size: 20px; /* 增大提子數字體 */
+  font-weight: bold;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-width: 150px;
+  text-align: center;
+}
+
+/* 輪到誰的提示 */
+p strong {
+  font-size: 22px; /* 增大提示字體 */
+}
+
+/* 按鈕文字 */
+.btn {
+  font-size: 18px; /* 增大按鈕字體 */
+  padding: 8px 15px; /* 增大按鈕尺寸 */
+}
+
+/* 下拉選單 */
+.form-select {
+  font-size: 18px; /* 增大選單字體 */
+  padding: 8px 15px; /* 增大選單尺寸 */
+}
+
+/* 頂部狀態提示 */
+.top-bar p {
+  font-size: 20px; /* 增大頂部提示字體 */
 }
